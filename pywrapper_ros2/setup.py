@@ -61,7 +61,10 @@ def locate_cuda():
     """
     # print os.environ
     # first check if the CUDAHOME env variable is in use
-    if os.path.isdir("/usr/local/cuda-7.5"):
+    if os.path.isdir("/usr/local/cuda-12.6"):
+        home = "/usr/local/cuda-12.6"
+        nvcc = pjoin(home, 'bin', 'nvcc')
+    elif os.path.isdir("/usr/local/cuda-7.5"):
         home = "/usr/local/cuda-7.5"
         nvcc = pjoin(home, 'bin', 'nvcc')
     elif os.path.isdir("/usr/local/cuda"):
@@ -93,7 +96,7 @@ def locate_cuda():
 
 # compiler_flags = ["-w","-std=c++11", "-march=native", "-ffast-math", "-fno-math-errno"]
 compiler_flags = ["-w","-std=c++11", "-ffast-math", "-fno-math-errno", "-O2"]
-nvcc_flags = ['-arch=sm_50', '--ptxas-options=-v', '-c', '--compiler-options', "'-fPIC'", "-w","-std=c++11"]
+nvcc_flags = ['-arch=sm_87', '--ptxas-options=-v', '-c', '--compiler-options', "'-fPIC'", "-w","-std=c++11"]
 include_dirs = ["../", numpy_include]
 depends = ["../includes/*.h"]
 sources = ["RangeLibc.pyx","../vendor/lodepng/lodepng.cpp"]

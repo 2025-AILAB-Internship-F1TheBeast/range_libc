@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(range_libc)
+project(range_libc LANGUAGES CXX CUDA)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -32,7 +32,7 @@ file(GLOB EXEC_SRCS
 	main.cpp 
 	"vendor/lodepng/lodepng.cpp" )
 
-option(WITH_CUDA "Compile CUDA ray cast varients" OFF)
+option(WITH_CUDA "Compile CUDA ray cast varients" ON)
 # set(CHUNK_SIZE 16384)
 # set(CHUNK_THREADS 256)
 set(CHUNK_SIZE 262144)
@@ -88,16 +88,24 @@ if (WITH_CUDA)
 		"includes/kernels.cu"
 		"vendor/lodepng/lodepng.cpp" )
 
-	# set(CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda-7.5")
-	find_package(CUDA REQUIRED)
-
+	# Modern CMake CUDA support
+	find_package(CUDAToolkit REQUIRED)
+	
 	# Create shared library for ROS2 nodes
-	cuda_add_library(${PROJECT_NAME} SHARED ${CUDA_LIB_SRCS})
-	target_link_libraries(${PROJECT_NAME} gflags pthread)
+	add_library(${PROJECT_NAME} SHARED ${CUDA_LIB_SRCS})
+	target_link_libraries(${PROJECT_NAME} gflags pthread CUDA::cudart)
+	set_target_properties(${PROJECT_NAME} PROPERTIES 
+		CUDA_SEPARABLE_COMPILATION ON
+		CUDA_ARCHITECTURES "87"
+	)
 	
 	# Create executable for testing
-	cuda_add_executable(range_lib ${CUDA_EXEC_SRCS})
-	target_link_libraries(range_lib gflags pthread)
+	add_executable(range_lib ${CUDA_EXEC_SRCS})
+	target_link_libraries(range_lib gflags pthread CUDA::cudart)
+	set_target_properties(range_lib PROPERTIES 
+		CUDA_SEPARABLE_COMPILATION ON
+		CUDA_ARCHITECTURES "87"
+	)
 
 else()
 	add_definitions(-DUSE_CUDA=0)

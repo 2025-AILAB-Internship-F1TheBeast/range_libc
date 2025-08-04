@@ -1,5 +1,7 @@
 paper/
 build/
+install/
+log/
 tmp/
 pywrapper/*.so
 pywrapper/*.cpp

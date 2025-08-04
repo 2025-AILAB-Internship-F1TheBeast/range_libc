@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>range_libc</name>
+  <version>0.1.0</version>
+  <description>Fast 2D ray casting library for robotics applications</description>
+
+  <maintainer email="user@example.com">Your Name</maintainer>
+
+  <license>Apache-2.0</license>
+
+  <author email="corey.walsh11@gmail.com">Corey H. Walsh</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>ament_cmake_python</buildtool_depend>
+
+  <depend>nav_msgs</depend>
+  <depend>python3-numpy</depend>
+  <depend>python3-dev</depend>
+  <build_depend>python3-setuptools</build_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

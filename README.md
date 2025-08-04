@@ -1,18 +1,32 @@
-# RangeLibc
+# RangeLibc - ROS2 Compatible
 
-This library provides for different implementations of 2D raycasting for 2D occupancy grids, including the Compressed Directional Distance Transform (CDDT) algorithm as proposed in [this publication](http://arxiv.org/abs/1705.01167). The code is written and optimized in C++, and Python wrappers are also provided.
+This library provides different implementations of 2D raycasting for 2D occupancy grids, including the Compressed Directional Distance Transform (CDDT) algorithm as proposed in [this publication](http://arxiv.org/abs/1705.01167). The code is written and optimized in C++, with Python wrappers provided for ROS2 compatibility.
 
-WARNING: this is currently in a slightly weird state in preparation for 6.141 lab 5. I will try to fix up all the compile flags to work with both use cases soon.
+## Features
+
+- ✅ **ROS2 Compatible**: Updated for ROS2 Humble and later versions
+- ✅ **Fast 2D Ray Casting**: Multiple optimized algorithms including CDDT
+- ✅ **Python Integration**: ROS2-compatible Python wrappers
+- ✅ **CUDA Support**: Optional GPU acceleration
+- ✅ **Cross-Platform**: Tested on Ubuntu 22.04 with ARM64 and x86_64
 
 ## Building the Code
 
-The following has been tested on Ubuntu 14.04, OSX 10.10, and Ubuntu 16.06. Hopefully it will work on other systems as well, or will at least be not too difficult to fix.
+### ROS2 Package Build
 
-### C++ code
-
+```bash
+# Place in your ROS2 workspace
+cd ~/your_ros2_ws/src
+git clone https://github.com/your-repo/range_libc
+cd ~/your_ros2_ws
+colcon build --packages-select range_libc
+source install/setup.bash
 ```
-# clone the repository
-git clone https://github.com/kctess5/range_libc
+
+### Standalone C++ Build
+
+```bash
+git clone https://github.com/your-repo/range_libc
 cd range_libc
 mkdir build
 cd build
@@ -20,34 +34,21 @@ cmake ..
 make
 ```
 
-If you get an error about having the wrong version of CMake, install a version of CMake that is less than or equal to 3.6 (I use 3.6) from here: https://cmake.org/download/
+### Python Wrappers (ROS2 Compatible)
 
-If you don't want to update your system's version of CMake, simply:
+The Python wrappers have been updated to remove ROS1 dependencies:
 
-```
-# unzip cmake download and cd into that directory
-mkdir build
-cd build
-cmake ..
-make
-# 3.6 should be your cmake version number
-sudo ln -s [path to cmake directory]/build/bin/cmake /usr/bin/cmake3.6
-```
-
-Then use cmake3.6 instead of cmake in the above instructions for building the range_lib code.
-
-### Python Wrappers
-
-To build the code and its associated Python wrappers for use in Python code, do the following. You may have to install Cython if you do not already have it on your system.
-
-```
-# clone the repository
-git clone https://github.com/kctess5/range_libc
-cd range_libc_dist/pywrapper
-# for an in place build, do this:
+```bash
+cd range_libc/pywrapper_ros2
+pip install cython numpy
 python setup.py build_ext --inplace
-# for a system wide install, do this:
-python setup.py install
+pip install --user -e .
+```
+
+**Key Changes for ROS2:**
+- ✅ Removed `tf.transformations` dependency
+- ✅ Manual quaternion-to-euler conversion
+- ✅ Compatible with `nav_msgs.msg.OccupancyGrid` in ROS2
 # to compile with the GPU kernels, do this:
 WITH_CUDA=ON python setup.py install
 # this should take a few seconds to run

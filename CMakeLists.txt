@@ -1,13 +1,38 @@
-PROJECT(range_lib)
+cmake_minimum_required(VERSION 3.8)
+project(range_libc)
 
-# cmake_minimum_required(VERSION 2.8.0)
-cmake_minimum_required(VERSION 3.3)
+# Default to C99
+if(NOT CMAKE_C_STANDARD)
+  set(CMAKE_C_STANDARD 99)
+endif()
 
-file(GLOB SRCS 
+# Default to C++14
+if(NOT CMAKE_CXX_STANDARD)
+  set(CMAKE_CXX_STANDARD 14)
+endif()
+
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# find dependencies
+find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_python REQUIRED)
+
+# uncomment the following section in order to fill in
+# further dependencies manually.
+# find_package(<dependency> REQUIRED)
+
+# Library source files (excluding main.cpp for executable)
+file(GLOB LIB_SRCS 
+	"vendor/lodepng/lodepng.cpp" )
+
+# Executable source files
+file(GLOB EXEC_SRCS 
 	main.cpp 
 	"vendor/lodepng/lodepng.cpp" )
 
-option(WITH_CUDA "Compile CUDA ray cast varients" ON)
+option(WITH_CUDA "Compile CUDA ray cast varients" OFF)
 # set(CHUNK_SIZE 16384)
 # set(CHUNK_THREADS 256)
 set(CHUNK_SIZE 262144)
@@ -52,7 +77,13 @@ if (WITH_CUDA)
 	add_definitions(-DCHUNK_SIZE=${CHUNK_SIZE})
 	add_definitions(-DNUM_THREADS=${CHUNK_THREADS})
 
-	file(GLOB CUDA_SRCS 
+	# Library CUDA sources (excluding main.cpp)
+	file(GLOB CUDA_LIB_SRCS 
+		"includes/kernels.cu"
+		"vendor/lodepng/lodepng.cpp" )
+	
+	# Executable CUDA sources
+	file(GLOB CUDA_EXEC_SRCS 
 		main.cpp 
 		"includes/kernels.cu"
 		"vendor/lodepng/lodepng.cpp" )
@@ -60,13 +91,65 @@ if (WITH_CUDA)
 	# set(CUDA_TOOLKIT_ROOT_DIR "/usr/local/cuda-7.5")
 	find_package(CUDA REQUIRED)
 
-	cuda_add_executable(range_lib ${CUDA_SRCS})
-	# message(${CUDA_VERSION})
+	# Create shared library for ROS2 nodes
+	cuda_add_library(${PROJECT_NAME} SHARED ${CUDA_LIB_SRCS})
+	target_link_libraries(${PROJECT_NAME} gflags pthread)
+	
+	# Create executable for testing
+	cuda_add_executable(range_lib ${CUDA_EXEC_SRCS})
+	target_link_libraries(range_lib gflags pthread)
 
 else()
 	add_definitions(-DUSE_CUDA=0)
-	add_executable(range_lib ${SRCS})
+	
+	# Create shared library for ROS2 nodes
+	add_library(${PROJECT_NAME} SHARED ${LIB_SRCS})
+	target_link_libraries(${PROJECT_NAME} gflags pthread)
+	
+	# Create executable for testing
+	add_executable(range_lib ${EXEC_SRCS})
+	target_link_libraries(range_lib gflags pthread)
 endif()
 
+# Install headers
+install(
+  DIRECTORY includes/
+  DESTINATION include/${PROJECT_NAME}
+)
 
-target_link_libraries(range_lib gflags pthread)
+# Install library
+install(
+  TARGETS ${PROJECT_NAME}
+  EXPORT ${PROJECT_NAME}_targets
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+)
+
+# Install executable (optional, for testing)
+install(
+  TARGETS range_lib
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+# Install Python wrapper
+ament_python_install_package(pywrapper_ros2)
+
+# Export targets for other ROS2 packages to use
+ament_export_targets(${PROJECT_NAME}_targets HAS_LIBRARY_TARGET)
+ament_export_dependencies()
+ament_export_include_directories(include)
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  # the following line skips the linter which checks for copyrights
+  # comment the line when a copyright and license is added to all source files
+  set(ament_cmake_copyright_FOUND TRUE)
+  # the following line skips cpplint (only works in a git repo)
+  # comment the line when this package is in a git repo and when
+  # a copyright and license is added to all source files
+  set(ament_cmake_cpplint_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+endif()
+
+ament_package()

@@ -1,1 +1,1 @@
-sudo TRACE=ON python setup.py install
+sudo TRACE=ON python3 setup.py install

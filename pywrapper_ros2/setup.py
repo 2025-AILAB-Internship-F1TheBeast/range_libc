@@ -21,7 +21,7 @@ def check_for_flag(flag_str, truemsg=False, falsemsg=False):
         print(truemsg)
     elif not enabled and not falsemsg == False:
         print(falsemsg)
-        print("   $ sudo "+flag_str+"=ON python setup.py install")
+        print("   $ sudo "+flag_str+"=ON python3 setup.py install")
     return enabled
 
 use_cuda = check_for_flag("WITH_CUDA", \
@@ -59,7 +59,7 @@ def locate_cuda():
     Starts by looking for the CUDAHOME env variable. If not found, everything
     is based on finding 'nvcc' in the PATH.
     """
-    # print os.environ
+    # print(os.environ)
     # first check if the CUDAHOME env variable is in use
     if os.path.isdir("/usr/local/cuda-12.6"):
         home = "/usr/local/cuda-12.6"

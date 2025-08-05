@@ -1,1 +1,1 @@
-sudo WITH_CUDA=ON python setup.py install
+sudo WITH_CUDA=ON python3 setup.py install

@@ -1,5 +1,14 @@
 cmake_minimum_required(VERSION 3.8)
-project(range_libc LANGUAGES CXX CUDA)
+
+# Check CUDA option first
+option(WITH_CUDA "Compile CUDA ray cast varients" ON)
+
+# Conditionally set project languages
+if(WITH_CUDA)
+    project(range_libc LANGUAGES CXX CUDA)
+else()
+    project(range_libc LANGUAGES CXX)
+endif()
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -31,8 +40,6 @@ file(GLOB LIB_SRCS
 file(GLOB EXEC_SRCS 
 	main.cpp 
 	"vendor/lodepng/lodepng.cpp" )
-
-option(WITH_CUDA "Compile CUDA ray cast varients" ON)
 # set(CHUNK_SIZE 16384)
 # set(CHUNK_THREADS 256)
 set(CHUNK_SIZE 262144)

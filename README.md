@@ -37,6 +37,9 @@ cd ~/your_ros2_ws
 export CUDACXX=/usr/local/cuda/bin/nvcc  # or your CUDA path
 colcon build --packages-select range_libc
 
+# Build without CUDA (for systems without NVIDIA GPU)
+colcon build --packages-select range_libc --cmake-args -DWITH_CUDA=OFF
+
 # Source the workspace
 source install/setup.bash
 ```
@@ -108,7 +111,7 @@ CUDA acceleration is **automatically enabled** if CUDA is detected during build.
 export CUDACXX=/usr/local/cuda/bin/nvcc
 colcon build --packages-select range_libc
 
-# Build without CUDA
+# Build without CUDA (for systems without NVIDIA GPU)
 colcon build --packages-select range_libc --cmake-args -DWITH_CUDA=OFF
 ```
 

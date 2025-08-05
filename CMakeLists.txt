@@ -155,6 +155,37 @@ ament_export_targets(${PROJECT_NAME}_targets HAS_LIBRARY_TARGET)
 ament_export_dependencies()
 ament_export_include_directories(include)
 
+# Also create standard CMake config files for non-ROS2 usage
+include(CMakePackageConfigHelpers)
+
+# Create the config file
+configure_package_config_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/cmake/range_libcConfig.cmake.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/range_libcConfig.cmake"
+  INSTALL_DESTINATION lib/cmake/range_libc
+)
+
+# Create version file
+write_basic_package_version_file(
+  "${CMAKE_CURRENT_BINARY_DIR}/range_libcConfigVersion.cmake"
+  VERSION 1.0.0
+  COMPATIBILITY AnyNewerVersion
+)
+
+# Install CMake config files
+install(FILES
+  "${CMAKE_CURRENT_BINARY_DIR}/range_libcConfig.cmake"
+  "${CMAKE_CURRENT_BINARY_DIR}/range_libcConfigVersion.cmake"
+  DESTINATION lib/cmake/range_libc
+)
+
+# Install the targets export file
+install(EXPORT ${PROJECT_NAME}_targets
+  FILE range_libcTargets.cmake
+  NAMESPACE range_libc::
+  DESTINATION lib/cmake/range_libc
+)
+
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   # the following line skips the linter which checks for copyrights

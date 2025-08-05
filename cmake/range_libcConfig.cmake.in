@@ -1,0 +1,11 @@
+@PACKAGE_INIT@
+
+# Include the targets file
+include("${CMAKE_CURRENT_LIST_DIR}/range_libcTargets.cmake")
+
+# Set variables for backwards compatibility
+set(range_libc_LIBRARIES range_libc::range_libc)
+set(range_libc_INCLUDE_DIRS "@PACKAGE_INCLUDE_INSTALL_DIR@")
+
+# Check required components
+check_required_components(range_libc)

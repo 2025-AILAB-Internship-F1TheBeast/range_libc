@@ -17,18 +17,27 @@ High-performance 2D ray casting library with CUDA acceleration for robotics appl
 sudo apt install python3-dev python3-numpy cython3 build-essential cmake
 ```
 
-### Build C++ Library
+### Build & Install C++ Library
 ```bash
 git clone <repo-url>
 cd range_libc
 
+# Clean build and system-wide installation
+mkdir build && cd build
+
 # With CUDA (if available)
-mkdir build && cd build && cmake .. -DWITH_CUDA=ON && make -j$(nproc)
+cmake .. -DWITH_CUDA=ON
+make -j$(nproc)
+sudo make install
+sudo ldconfig
 
-# Without CUDA
-mkdir build && cd build && cmake .. -DWITH_CUDA=OFF && make -j$(nproc)
+# Without CUDA (recommended for most systems)
+cmake .. -DWITH_CUDA=OFF
+make -j$(nproc)
+sudo make install
+sudo ldconfig
 
-# Test
+# Test installation
 ./bin/range_lib --method=RayMarching --map_path=../maps/small.map.png
 ```
 
@@ -69,6 +78,23 @@ ranges::RayMarching ray_caster(omap, 500.0);
 float range = ray_caster.calc_range(x, y, theta);
 ```
 
+### Using in Other CMake Projects
+After system-wide installation, other projects can easily use RangeLibc:
+
+```cmake
+# In your CMakeLists.txt
+find_package(range_libc REQUIRED)
+
+# Link to your target
+target_link_libraries(your_target range_libc::range_libc)
+
+# Or fallback approach (if find_package doesn't work)
+find_path(RANGELIBC_INCLUDE_DIR NAMES RangeLib.h PATHS /usr/local/include/range_libc)
+find_library(RANGELIBC_LIBRARY NAMES range_libc PATHS /usr/local/lib)
+target_include_directories(your_target PRIVATE ${RANGELIBC_INCLUDE_DIR})
+target_link_libraries(your_target ${RANGELIBC_LIBRARY})
+```
+
 ### Python Example
 ```python
 import range_libc as rl
@@ -80,8 +106,15 @@ range_val = ray_caster.calc_range(x, y, theta)
 
 ## Build Results
 
-After building you'll have:
-- `build/lib/librange_libc.so` - C++ shared library
+### System-Wide Installation
+After `sudo make install`:
+- `/usr/local/lib/librange_libc.so` - C++ shared library
+- `/usr/local/include/range_libc/` - Header files (RangeLib.h, etc.)
+- `/usr/local/share/range_libc/cmake/` - CMake config files
+- Other projects can find it with `find_package(range_libc)`
+
+### Local Build
+- `build/lib/librange_libc.so` - Local C++ shared library
 - `build/bin/range_lib` - Test executable  
 - `pywrapper_ros2/range_libc.cpython-*.so` - Python module
 
@@ -94,13 +127,22 @@ After building you'll have:
 
 Performance: Ray Marching ~3x faster than Bresenham, CDDT near-constant time.
 
-## Python 3 Updates
+## Python 3 Updates & System Integration
 
-All Python code updated from Python 2:
-- `print()` functions, `range()` instead of `xrange()`
-- Fixed string encoding for file paths (`b"path"`)
-- Modern timing with `time.perf_counter()`
-- Updated compile scripts to use `python3`
+### ✅ Completed Updates:
+- **Python 2 → 3 Migration**: All code updated (`print()`, `range()`, `map()`, etc.)
+- **String Encoding**: Fixed file paths with proper bytes encoding (`b"path"`)
+- **Modern Timing**: Updated to `time.perf_counter()` for better performance measurement
+- **Build Scripts**: All compile scripts now use `python3`
+- **System Installation**: Added proper CMake config files for system-wide installation
+- **Dual Build Support**: Both ROS2 colcon and direct CMake builds work
+- **Cross-Platform**: Works with and without CUDA, conditional compilation
+
+### ⚙️ Build System Improvements:
+- **Conditional CUDA**: Only enables CUDA language support when needed
+- **Modern CMake**: Creates proper `range_libc::range_libc` targets
+- **Dual Installation**: Both `/usr/local/lib/cmake/` and `/usr/local/share/range_libc/cmake/`
+- **Automatic Discovery**: Other projects can find it with `find_package(range_libc)`
 
 ## Citation
 
